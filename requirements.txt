@@ -55,7 +55,6 @@ pymongo==4.8.0
 python-dateutil==2.9.0.post0
 PythonQwt==0.12.6
 pytz==2024.1
-pywin32==306
 pyzmq==26.0.3
 QtPy==2.4.1
 referencing==0.35.1
