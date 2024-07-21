@@ -93,7 +93,8 @@ def main():
     # Debug output untuk memastikan data diterima dengan benar
     #st.write("Data dari API:", data)
     
-    st.subheader("Data Kualitas Udara Terkini")
+    
+    
     # Menampilkan data terbaru
     if latest_data:
         suhu = latest_data.get('temperature', 0)
@@ -103,6 +104,25 @@ def main():
         no2 = latest_data.get('no2', 0)
         co = latest_data.get('co', 0)
     
+        new_data = pd.DataFrame({
+        'PM2.5': [pm25],
+        'NO2': [no2],
+        'NH3': [nh3],
+        'CO': [co],
+        'Temperature': [suhu],
+        'Humidity': [kelembapan]
+        })
+        new_prediction = model.predict(new_data)
+    
+        if new_prediction[0] == 'Good' or new_prediction[0] == 'Satisfactory':
+            st.success(f"Prediksi Kategori AQI: {new_prediction[0]}")
+        elif new_prediction[0] == 'Moderate':
+            st.info(f"Prediksi Kategori AQI: {new_prediction[0]}")
+        elif new_prediction[0] == 'Poor':
+            st.warning(f"Prediksi Kategori AQI: {new_prediction[0]}")
+        else:
+            st.error(f"Prediksi Kategori AQI: {new_prediction[0]}")
+        st.subheader("Data Kualitas Udara Terkini")
         col1, col2, col3 = st.columns(3)
         with col1:
             st.plotly_chart(create_gauge('Suhu', suhu, 0, 100, '°C', 'green'), use_container_width=True)
@@ -118,25 +138,7 @@ def main():
         with col6:
             st.plotly_chart(create_gauge('NO2', no2, 0, 100, 'ug/m3', 'red'), use_container_width=True)
         
-    new_data = pd.DataFrame({
-    'PM2.5': [pm25],
-    'NO2': [no2],
-    'NH3': [nh3],
-    'CO': [co],
-    'Temperature': [suhu],
-    'Humidity': [kelembapan]
-    })
-
-    new_prediction = model.predict(new_data)
-    
-    if new_prediction[0] == 'Good' or new_prediction[0] == 'Satisfactory':
-        st.success(f"Prediksi Kategori AQI: {new_prediction[0]}")
-    elif new_prediction[0] == 'Moderate':
-        st.info(f"Prediksi Kategori AQI: {new_prediction[0]}")
-    elif new_prediction[0] == 'Poor':
-        st.warning(f"Prediksi Kategori AQI: {new_prediction[0]}")
-    else:
-        st.error(f"Prediksi Kategori AQI: {new_prediction[0]}")
+   
     # Menampilkan grafik kualitas udara dari waktu ke waktu
     st.subheader("Grafik Data Kualitas Udara")
     # untuk filtering grafik 
