@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 import plotly.graph_objects as go
 import pickle
 # Fungsi untuk mengambil data dari Flask API dengan berdasarkan filter waktu
-def get_sensor_data(start_date=None, end_date=None):
-    url = 'http://127.0.0.1:5000/data'
+def get_all_data(start_date=None, end_date=None):
+    url = 'http://127.0.0.1:5000/all_data'
     params = {}
     if start_date:
         params['start_date'] = start_date.isoformat()
@@ -23,12 +23,6 @@ def get_latest_data():
         return response.json()
     else:
         return None
-
-# Fungsi untuk membuat data dump di Flask API
-def create_data_dump():
-    url = 'http://127.0.0.1:5000/create-dump'
-    response = requests.post(url)
-    return response.json()
 
 # Fungsi untuk membuat gauge
 def create_gauge(title, value, min_val, max_val, unit, color):
@@ -47,53 +41,13 @@ def create_gauge(title, value, min_val, max_val, unit, color):
 
 # Fungsi utama untuk aplikasi Streamlit
 def main():
+    st.set_page_config(page_title="Dashboard Monitoring Kualitas Udara")
     st.title("Dashboard Monitoring Kualitas Udara")
     latest_data = get_latest_data()
-
     model = pickle.load(open("AQI_model.sav", "rb"))
-    # Tombol untuk membuat data dump
-    if st.button('Buat Data Dump'):
-        response = create_data_dump()
-        st.write(response)
-    
     # Rentang waktu default (30 hari terakhir)
     end_date_default = datetime.today().date()
     start_date_default = end_date_default - timedelta(days=30)
-    
-    # Pilih rentang waktu
-    #st.sidebar.title("Filter Data")
-    # Tombol preset waktu
-    # preset = st.sidebar.radio(
-    #     "Preset waktu",
-    #     ('30 Hari Terakhir', '7 Hari Terakhir', '1 Hari Terakhir', 'Custom')
-    # )
-
-    # if preset == '30 Hari Terakhir':
-    #     start_date = start_date_default
-    #     end_date = end_date_default
-    # elif preset == '7 Hari Terakhir':
-    #     end_date = datetime.today().date()
-    #     start_date = end_date - timedelta(days=7)
-    # elif preset == '1 Hari Terakhir':
-    #     end_date = datetime.today().date()
-    #     start_date = end_date - timedelta(days=1)
-    # else:
-    #     start_date = st.sidebar.date_input("Mulai Tanggal", start_date_default)
-    #     end_date = st.sidebar.date_input("Sampai Tanggal", end_date_default)
-    
-    # # Pilih parameter yang akan ditampilkan
-    # st.sidebar.title("Pilih Parameter")
-    # show_temperature = st.sidebar.checkbox('Suhu', value=True)
-    # show_humidity = st.sidebar.checkbox('Kelembapan', value=True)
-    # show_pm25 = st.sidebar.checkbox('PM2.5', value=True)
-    # show_mq135 = st.sidebar.checkbox('MQ-135', value=True)
-    
-    # Ambil data dari Flask API dengan filter waktu
-    
-    # Debug output untuk memastikan data diterima dengan benar
-    #st.write("Data dari API:", data)
-    
-    
     
     # Menampilkan data terbaru
     if latest_data:
@@ -138,7 +92,7 @@ def main():
         with col6:
             st.plotly_chart(create_gauge('NO2', no2, 0, 100, 'ug/m3', 'red'), use_container_width=True)
         
-   
+    # st.write("Data dari API:", latest_data)
     # Menampilkan grafik kualitas udara dari waktu ke waktu
     st.subheader("Grafik Data Kualitas Udara")
     # untuk filtering grafik 
@@ -165,12 +119,7 @@ def main():
         else:  # Custom date range
             start_date = st.date_input("Mulai Tanggal", start_date_default)
             end_date = st.date_input("Sampai Tanggal", end_date_default)
-    # col1, col2 = st.columns(2)
-    # with col1: 
-    #     start_date = st.date_input("Mulai Tanggal", start_date)
-    # with col2:
-    #     end_date = st.date_input("Sampai Tanggal", end_date)
-    
+        
     with col2:
         # Pilih parameter yang akan ditampilkan
         st.write("Pilih Parameter")
@@ -184,8 +133,6 @@ def main():
             show_nh3 = st.checkbox('NH3', value=True)
             show_co = st.checkbox('CO', value=True)
             show_no2 = st.checkbox('NO2', value=True)
-            
-    data = get_sensor_data(start_date=start_date, end_date=end_date)
     
     if preset == '30 Hari Terakhir':
             start_date = datetime.today() - timedelta(days=30)
@@ -204,6 +151,8 @@ def main():
         else:
             st.error('Error: Tanggal akhir harus setelah tanggal awal.')
     
+    data = get_all_data(start_date=start_date, end_date=end_date)
+    # st.write("Data dari API:", data)
     # Konversi data ke DataFrame
     if data:
         df = pd.DataFrame(data)
