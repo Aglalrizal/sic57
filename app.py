@@ -7,7 +7,7 @@ import random
 
 app = Flask(__name__)
 
-uri = "mongodb+srv://rizalaglalfaoji017:V1O33o3sbZBVvZ9t@sic57.99jpllb.mongodb.net/?retryWrites=true&w=majority&appName=sic57"
+uri = "mongodb+srv://teguhrahmat911:edx4JgGgXvVvKdTb@kualitasudara.czsbrts.mongodb.net/?retryWrites=true&w=majority&appName=kualitasudara"
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
 try:
@@ -16,8 +16,8 @@ try:
 except Exception as e:
     print(e)
 
-db = client['sistemMonitoringKualitasUdara']  # ganti sesuai dengan nama database kalian
-my_collection = db['sensor']  # ganti sesuai dengan nama collections kalian
+db = client['kualitasudara1']  # ganti sesuai dengan nama database kalian
+my_collection = db['kualitasudara2']  # ganti sesuai dengan nama collections kalian
 
 def create_data_dump():
     # Hapus data lama jika ada
